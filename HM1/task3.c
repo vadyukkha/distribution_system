@@ -15,8 +15,8 @@ typedef struct {
 } my_rwlock_t;
 
 int32_t rwlock_init(my_rwlock_t* lock) {
-    int rc;
     if (lock == NULL) return EINVAL;
+    int rc;
     if ((rc = pthread_mutex_init(&lock->mutex, NULL)) != 0) return rc;
     if ((rc = pthread_cond_init(&lock->cv_read, NULL)) != 0) {
         pthread_mutex_destroy(&lock->mutex);
@@ -35,8 +35,8 @@ int32_t rwlock_init(my_rwlock_t* lock) {
 }
 
 int32_t rwlock_destroy(my_rwlock_t* lock) {
-    int rc;
     if (lock == NULL) return EINVAL;
+    int rc;
     if ((rc = pthread_mutex_lock(&lock->mutex)) != 0) return rc;
     if (lock->count_readers != 0 || lock->is_writer_active ||
         lock->count_waiting_readers != 0 || lock->count_waiting_writers != 0) {
@@ -50,6 +50,7 @@ int32_t rwlock_destroy(my_rwlock_t* lock) {
 }
 
 int32_t rwlock_rdlock(my_rwlock_t* lock) {
+    if (lock == NULL) return EINVAL;
     int rc;
     if ((rc = pthread_mutex_lock(&lock->mutex)) != 0) return rc;
     if (lock->is_writer_active || lock->count_waiting_writers > 0) {
@@ -68,6 +69,7 @@ int32_t rwlock_rdlock(my_rwlock_t* lock) {
 }
 
 int32_t rwlock_wrlock(my_rwlock_t* lock) {
+    if (lock == NULL) return EINVAL;
     int rc;
     if ((rc = pthread_mutex_lock(&lock->mutex)) != 0) return rc;
     if (lock->is_writer_active || lock->count_readers > 0) {
@@ -87,6 +89,7 @@ int32_t rwlock_wrlock(my_rwlock_t* lock) {
 }
 
 int32_t rwlock_unlock(my_rwlock_t* lock) {
+    if (lock == NULL) return EINVAL;
     int rc;
     if ((rc = pthread_mutex_lock(&lock->mutex)) != 0) return rc;
     if (lock->is_writer_active) {
